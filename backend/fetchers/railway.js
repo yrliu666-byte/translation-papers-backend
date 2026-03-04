@@ -44,15 +44,18 @@ class RailwayFetcher {
       const authors = this.extractField(metaText, '作者：');
       const journal = this.extractField(metaText, '期刊：');
       const date = this.extractField(metaText, '日期：');
-      const abstract = $item.find('.paper-abstract').text().trim();
+      const rawAbstract = $item.find('.paper-abstract').text().trim();
       const url = $item.find('a').attr('href') || '';
+
+      // 清理摘要：移除 HTML 标签和特殊符号
+      const cleanAbstract = this.cleanAbstract(rawAbstract);
 
       if (title) {
         papers.push({
           id: `railway-${Date.now()}-${index}`,
           title: title,
           authors: authors || 'Unknown',
-          abstract: abstract || '暂无摘要',
+          abstract: cleanAbstract || '暂无摘要',
           journal: journal || 'Unknown',
           publish_date: date || new Date().toISOString().split('T')[0],
           url: url || `https://scholar.google.com/scholar?q=${encodeURIComponent(title)}`,
@@ -62,6 +65,22 @@ class RailwayFetcher {
     });
 
     return papers;
+  }
+
+  cleanAbstract(text) {
+    if (!text) return '';
+
+    // 移除 HTML 标签（如 <jats:p>, <i>, <b> 等）
+    let cleaned = text.replace(/<[^>]+>/g, '');
+
+    // 移除多余的空白字符
+    cleaned = cleaned.replace(/\s+/g, ' ').trim();
+
+    // 移除特殊符号，只保留中英文、数字、基本标点
+    // 保留：字母、数字、中文、常用标点（。，、；：？！""''()[].-,;:?!'"）
+    cleaned = cleaned.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\s\.\,\;\:\?\!\"\'\(\)\[\]\-\u3000-\u303f]/g, '');
+
+    return cleaned;
   }
 
   extractField(text, label) {
