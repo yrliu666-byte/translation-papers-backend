@@ -15,14 +15,14 @@ class PaperScheduler {
     // 确保数据目录存在
     await fs.mkdir(path.dirname(this.dataPath), { recursive: true });
 
-    // 加载测试数据（暂时禁用自动抓取）
-    await this.loadTestData();
+    // 启动时立即更新论文数据
+    await this.updatePapers();
 
-    // 每天12点执行更新（暂时注释掉）
-    // schedule.scheduleJob('0 12 * * *', async () => {
-    //   console.log('Scheduled update triggered at 12:00');
-    //   await this.updatePapers();
-    // });
+    // 每天12点执行更新
+    schedule.scheduleJob('0 12 * * *', async () => {
+      console.log('Scheduled update triggered at 12:00');
+      await this.updatePapers();
+    });
 
     // 每周一北京时间09:00发送邮件周报
     schedule.scheduleJob({ rule: '0 9 * * 1', tz: 'Asia/Shanghai' }, async () => {
@@ -30,7 +30,7 @@ class PaperScheduler {
       await this.sendWeeklyEmail();
     });
 
-    console.log('Paper scheduler initialized with test data.');
+    console.log('Paper scheduler initialized. Daily updates at 12:00.');
     console.log('Weekly digest scheduled: every Monday at 09:00 CST');
   }
 

@@ -1,10 +1,12 @@
 const SemanticScholarFetcher = require('./fetchers/semanticScholar');
 const CrossRefFetcher = require('./fetchers/crossref');
 const ArXivFetcher = require('./fetchers/arxiv');
+const RailwayFetcher = require('./fetchers/railway');
 
 class PaperAggregator {
   constructor() {
     this.fetchers = [
+      new RailwayFetcher(), // 优先使用 Railway 数据源
       new SemanticScholarFetcher(),
       new CrossRefFetcher(),
       new ArXivFetcher()
