@@ -1,0 +1,6 @@
+node_modules/
+backend/node_modules/
+data/*.json
+backend/data/subscribers.json
+.DS_Store
+*.log
