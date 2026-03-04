@@ -80,7 +80,7 @@ class PaperAggregator {
 
   async fetchLast24Hours() {
     const now = new Date();
-    const daysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); // 改为30天
+    const daysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000); // 改为90天（3个月）
 
     const toDate = now.toISOString().split('T')[0];
     const fromDate = daysAgo.toISOString().split('T')[0];

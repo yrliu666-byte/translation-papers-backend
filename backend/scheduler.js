@@ -15,12 +15,12 @@ class PaperScheduler {
     // 确保数据目录存在
     await fs.mkdir(path.dirname(this.dataPath), { recursive: true });
 
-    // 启动时立即更新论文数据
-    await this.updatePapers();
+    // 启动时检查是否需要更新
+    await this.checkAndUpdate();
 
-    // 每天12点执行更新
-    schedule.scheduleJob('0 12 * * *', async () => {
-      console.log('Scheduled update triggered at 12:00');
+    // 每周一中午12点更新论文
+    schedule.scheduleJob({ rule: '0 12 * * 1', tz: 'Asia/Shanghai' }, async () => {
+      console.log('Weekly paper update triggered (Monday 12:00 CST)');
       await this.updatePapers();
     });
 
@@ -30,8 +30,30 @@ class PaperScheduler {
       await this.sendWeeklyEmail();
     });
 
-    console.log('Paper scheduler initialized. Daily updates at 12:00.');
-    console.log('Weekly digest scheduled: every Monday at 09:00 CST');
+    console.log('Paper scheduler initialized.');
+    console.log('Weekly paper update: every Monday at 12:00 CST');
+    console.log('Weekly email digest: every Monday at 09:00 CST');
+  }
+
+  async checkAndUpdate() {
+    try {
+      // 检查是否有现有数据
+      const existingData = await this.getPapers();
+      const lastUpdate = existingData.lastUpdate ? new Date(existingData.lastUpdate) : null;
+      const now = new Date();
+
+      // 如果没有数据，或者距离上次更新超过7天，则更新
+      if (!lastUpdate || (now - lastUpdate) > 7 * 24 * 60 * 60 * 1000) {
+        console.log('No recent data found, fetching papers...');
+        await this.updatePapers();
+      } else {
+        console.log(`Using existing data from ${lastUpdate.toISOString()}`);
+        console.log(`Papers count: ${existingData.count}`);
+      }
+    } catch (error) {
+      console.error('Error checking data:', error);
+      await this.updatePapers();
+    }
   }
 
   async loadTestData() {

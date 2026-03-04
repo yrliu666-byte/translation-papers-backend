@@ -57,9 +57,6 @@ class ArXivFetcher {
   isRelevant(paper) {
     const text = `${paper.title} ${paper.abstract}`.toLowerCase();
 
-    // 排除中文论文（标题或摘要含中文字符）
-    if (/[\u4e00-\u9fff\u3400-\u4dbf]/.test(`${paper.title} ${paper.abstract}`)) return false;
-
     if (!text.includes('translation')) return false;
     if (!text.includes('china') && !text.includes('chinese')) return false;
     if (!text.includes('history')) return false;
